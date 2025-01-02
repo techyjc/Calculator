@@ -7,34 +7,36 @@ const decimalplaces = 2;
 let btnvalue = "";
 let calcsum = [];
 let inputcount = 0;
-let userinput = "";
+let userEntry = "";
 let result = 0;
 let keyhold = false;
+let isOperator = false;
+let lastInput = "";
 const acceptedkeys = [
-  "0",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "0",
-  ".",
-  "+",
-  "-",
-  "+",
-  "*",
-  "/",
-  "%",
-  "=",
-  "c",
-  "C",
-  "Enter"
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "0",
+    ".",
+    "+",
+    "-",
+    "+",
+    "*",
+    "/",
+    "%",
+    "=",
+    "c",
+    "C",
+    "Enter"
 ];
-const acceptedops = ["+", "-", "*", "/", "%", "=","Enter"];
+const acceptedops = ["+", "-", "*", "/", "%", "=", "Enter"];
 
 calc_input.readOnly = true;
 
@@ -42,167 +44,166 @@ calc_input.value = 0;
 let calclog = getmyLog();
 
 document.addEventListener("keydown", (e) => {
-  if (e.key = "Alt") {
-    keyhold = true;
-  }
+    if (e.key == "Alt") {
+        keyhold = true;
+    }
 });
 
+// Event Listeners
+
 document.addEventListener("keyup", (e) => {
-  if ((e.key = "Alt")) {
-    keyhold = false;
-  }
+    if (e.key == "Alt") {
+        keyhold = false;
+    }
 });
 
 document.addEventListener("keypress", (e) => {
-  if (acceptedkeys.includes(e.key)) {
-    displayentry(e.key);
-  }
+    if (acceptedkeys.includes(e.key)) {
+        entry(e.key, keyhold, true);
+    }
 });
 
 calc_buttons.addEventListener("click", (e) => {
-  if (e.target.classList.contains("calc-num")) {
-    btnvalue = parseInt(e.target.getAttribute("data-button"));
-    displayentry(btnvalue);
-  }
-
-  if (e.target.classList.contains("calc-func")) {
-    btnvalue = e.target.getAttribute("data-button");
-    if (btnvalue != "") {
-      displayentry(btnvalue);
+    if (e.target.classList.contains("calc-num")) {
+        btnvalue = parseInt(e.target.getAttribute("data-button"));
+        entry(btnvalue, keyhold);
     }
-  }
+
+    if (e.target.classList.contains("calc-func")) {
+        btnvalue = e.target.getAttribute("data-button");
+        if (btnvalue != "") {
+            entry(btnvalue, keyhold);
+        }
+    }
 });
 
 calc_logentries.addEventListener("click", (e) => {
-  let logindex = 0;
-  if (e.target.classList.contains("log-entry")) {
-    logindex = e.target.getAttribute("data-logindex");
-    calc_input.value = numbertype(calclog[logindex]);
-  }
+    let logindex = 0;
+    if (e.target.classList.contains("log-entry")) {
+        logindex = e.target.getAttribute("data-logindex");
+        calc_input.value = numbertype(calclog[logindex]);
+    }
 });
 
 calc_clear.addEventListener("click", (e) => {
-  clearmyLogs();
-  calclog = getmyLog();
-  updatemyLogs();
+    clearmyLogs();
+    calclog = getmyLog();
+    updatemyLogs();
 });
 
-function displayentry(value) {
-  calc_input.value = "";
-  
-  console.log(value);
-  if(value == 'enter' || value == 'Enter'){
-    value = '=';
-  }
+// Functions
 
-  if (typeof value === "string") {
-    value = value.toLowerCase();
-  }
+function entry(keyValue, keyDepressed = false, isKeyboard = false) {
+    calc_input.value = 0;
 
-  if (userinput.length < 0) {
-    console.log("string Length:" + userinput.length);
-    if (acceptedops.includes(value)) {
-      return 0;
+    console.log("String:" + isNaN(keyValue));
+
+    if (isNaN(keyValue)) {
+        keyValue = keyValue.toLowerCase();
     }
-  }
 
-  if (value == "c") {
-    userinput = "";
-    calcsum = [];
-    console.clear();
-    return 0;
-  }
+    if (acceptedops.includes(keyValue)) {
+        isOperator = true;
+    }else{
+        isOperator = false;
+    }
 
-  if (value == "+/-") {
-    console.log(calc_input.value);
-    //TODO
-    return 0;
-  }
+    testInput(keyValue, keyDepressed, isKeyboard);
 
-  if (value != "=") {
-    if (String(calc_input.value) == "0" || String(calc_input.value) === 0) {
+    switch (keyValue) {
+        case "c":
+            userEntry = "";
+            calcsum = [];
+            console.clear();
+            break;
+        case "enter" || "=":
+            userEntry = "";
+            calcsum = [];
+            break;
+        case ".":
+            break;
+        default:
+            userEntry += String(keyValue);
+            calc_input.value = userEntry;
+            break;
+    }
+}
+
+function stringLength(keyValue) {
+    if (userinput.length > 0) {
+        return true;
     } else {
-      if (acceptedops.includes(value)) {
-        calcsum.push(userinput);
-        calcsum.push(value);
-        userinput = "";
-      } else {
-        if (value == "." && userinput == 0) {
-          userinput = "0.";
-          value = "";
-        }
-        if (value == "." && userinput.includes(".")) {
-          value = "";
-        }
-        userinput += String(value);
-      }
-      calc_input.value = output() + "" + String(userinput);
+        return false;
     }
-  } else {
-    calcsum.push(userinput);
-    userinput = "";
-    calc_input.value = numbertype(output());
-    addlogentry(output());
-    calcsum = [];
-  }
+}
+
+function decCheck(keyValue){
+
 }
 
 function numbertype(value) {
-  if (value.includes(".")) {
-    value = eval(value);
-    value = parseFloat(value).toFixed(decimalplaces);
-  } else {
-    value = eval(value);
-    value = parseInt(value);
-  }
-  return value;
+    if (value.includes(".")) {
+        value = eval(value);
+        value = parseFloat(value).toFixed(decimalplaces);
+    } else {
+        value = eval(value);
+        value = parseInt(value);
+    }
+    return value;
 }
 
 function output() {
-  let finalvalue = calcsum.join("");
-  return finalvalue;
+    let finalvalue = calcsum.join("");
+    return finalvalue;
 }
 
 function addlogentry(value) {
-  let count = 1;
-  calc_logentries.innerHTML = "";
-  calclog.push(value);
-  calclog.forEach((sum, index) => {
-    let newlogentry = document.createElement("li");
-    newlogentry.classList.add("log-entry");
-    newlogentry.innerHTML = "<strong>" + count + ")</strong> " + sum + "=";
-    newlogentry.setAttribute("data-logindex", index);
-    count++;
-    calc_logentries.appendChild(newlogentry);
-  });
-  savemyLog();
+    let count = 1;
+    calc_logentries.innerHTML = "";
+    calclog.push(value);
+    calclog.forEach((sum, index) => {
+        let newlogentry = document.createElement("li");
+        newlogentry.classList.add("log-entry");
+        newlogentry.innerHTML = "<strong>" + count + ")</strong> " + sum + "=";
+        newlogentry.setAttribute("data-logindex", index);
+        count++;
+        calc_logentries.appendChild(newlogentry);
+    });
+    savemyLog();
 }
 
 function savemyLog() {
-  const mylogJson = JSON.stringify(calclog);
-  localStorage.setItem("calclog", mylogJson);
+    const mylogJson = JSON.stringify(calclog);
+    localStorage.setItem("calclog", mylogJson);
 }
 
 function getmyLog() {
-  const logs = localStorage.getItem("calclog") || "[]";
-  return JSON.parse(logs);
+    const logs = localStorage.getItem("calclog") || "[]";
+    return JSON.parse(logs);
 }
 
 function updatemyLogs() {
-  let count = 1;
-  calc_logentries.innerHTML = "";
-  calclog.forEach((sum, index) => {
-    let newlogentry = document.createElement("li");
-    newlogentry.classList.add("log-entry");
-    newlogentry.innerHTML = "<strong>" + count + ")</strong> " + sum + "=";
-    newlogentry.setAttribute("data-logindex", index);
-    count++;
-    calc_logentries.appendChild(newlogentry);
-  });
+    let count = 1;
+    calc_logentries.innerHTML = "";
+    calclog.forEach((sum, index) => {
+        let newlogentry = document.createElement("li");
+        newlogentry.classList.add("log-entry");
+        newlogentry.innerHTML = "<strong>" + count + ")</strong> " + sum + "=";
+        newlogentry.setAttribute("data-logindex", index);
+        count++;
+        calc_logentries.appendChild(newlogentry);
+    });
 }
 
 function clearmyLogs() {
-  localStorage.removeItem("calclog");
+    localStorage.removeItem("calclog");
+}
+
+function testInput(keyValue,keyDepressed,isKeyboard){
+    console.log("Enter Value:" + keyValue);
+    console.log("Key Depressed:" + keyDepressed);
+    console.log("Keyboard:" + isKeyboard);
+    console.log("Operator:" + isOperator);
 }
 
 updatemyLogs();
