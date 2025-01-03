@@ -1,3 +1,5 @@
+//TODO implement +/- function
+
 const calc_buttons = document.querySelector(".calc-buttons");
 const calc_input = document.querySelector(".calc-input");
 const calc_clear = document.querySelector(".clear-log");
