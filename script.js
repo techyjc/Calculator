@@ -3,7 +3,6 @@ const calc_input = document.querySelector(".calc-input");
 const calc_clear = document.querySelector(".clear-log");
 let calc_logentries = document.querySelector(".log-entries");
 
-const decimalplaces = 2;
 let btnvalue = "";
 let calcsum = [];
 let calcentry = [];
@@ -13,6 +12,7 @@ let storelastentry = '';
 let result = 0;
 let keyhold = false;
 let lastInput = "";
+const decimalplaces = 2;
 const acceptedkeys = [
     "0",
     "1",
@@ -92,6 +92,8 @@ calc_clear.addEventListener("click", (e) => {
     updatemyLogs();
 });
 
+// Event Listeners End
+
 // Functions
 
 function entry(keyValue, keyDepressed = false, isKeyboard = false) {
@@ -132,6 +134,8 @@ function entry(keyValue, keyDepressed = false, isKeyboard = false) {
 
 }
 
+//Calculator Sum Functions
+
 function checkSum(keyValue){
     let lastIndex = 0;
     let lastvalue = '';
@@ -160,14 +164,6 @@ function checkSum(keyValue){
 
 }
 
-function stringLength(currentuserEntry) {
-    if (currentuserEntry.length > 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 function appendSum(keyValue) {
     checkSum(keyValue);
     lastuserEntry += keyValue.toString();
@@ -192,8 +188,11 @@ function clearSum() {
     console.clear();
 }
 
+//Calculator Sum Functions End
+
+// General Functions
+
 function decCheck(keyValue) {
-    console.log("Decimal Check");
     if (keyValue == "." && lastuserEntry == 0) {
         lastuserEntry = "0.";
         calc_input.value = lastuserEntry;
@@ -210,6 +209,14 @@ function isOperator(keyValue) {
     }
 }
 
+function stringLength(currentuserEntry) {
+    if (currentuserEntry.length > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function cnvt2int(value) {
     if (value.includes(".")) {
         value = eval(value);
@@ -220,6 +227,10 @@ function cnvt2int(value) {
     }
     return value;
 }
+
+// General Functions End
+
+//Calculatior Log Functions
 
 function addlogentry(value) {
     let count = 1;
@@ -272,3 +283,5 @@ function testInput(keyValue, keyDepressed, isKeyboard) {
 }
 
 updatemyLogs();
+
+//Calculatior Log Functions End
