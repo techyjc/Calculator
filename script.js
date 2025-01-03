@@ -6,11 +6,12 @@ let calc_logentries = document.querySelector(".log-entries");
 const decimalplaces = 2;
 let btnvalue = "";
 let calcsum = [];
+let calcentry = [];
 let inputcount = 0;
-let userEntry = "";
+let lastuserEntry = "";
+let storelastentry = '';
 let result = 0;
 let keyhold = false;
-let isOperator = false;
 let lastInput = "";
 const acceptedkeys = [
     "0",
@@ -81,7 +82,7 @@ calc_logentries.addEventListener("click", (e) => {
     let logindex = 0;
     if (e.target.classList.contains("log-entry")) {
         logindex = e.target.getAttribute("data-logindex");
-        calc_input.value = numbertype(calclog[logindex]);
+        calc_input.value = cnvt2int((calclog[logindex]));
     }
 });
 
@@ -96,52 +97,120 @@ calc_clear.addEventListener("click", (e) => {
 function entry(keyValue, keyDepressed = false, isKeyboard = false) {
     calc_input.value = 0;
 
-    console.log("String:" + isNaN(keyValue));
-
     if (isNaN(keyValue)) {
         keyValue = keyValue.toLowerCase();
     }
-
-    if (acceptedops.includes(keyValue)) {
-        isOperator = true;
-    }else{
-        isOperator = false;
+    if (keyValue == "enter" || keyValue == "Enter") {
+        keyValue = "=";
     }
-
-    testInput(keyValue, keyDepressed, isKeyboard);
+    
+    //testInput(keyValue, keyDepressed, isKeyboard);
 
     switch (keyValue) {
         case "c":
-            userEntry = "";
-            calcsum = [];
-            console.clear();
+            clearSum()
             break;
-        case "enter" || "=":
-            userEntry = "";
-            calcsum = [];
+        case "=":
+            if(checkSum(keyValue)){
+                try {
+                    calc_input.value = doSum();
+                  }
+                  catch(err) {
+                    clearSum();
+                  }
+            };
             break;
         case ".":
+            decCheck(keyValue);
+            break;
+        case "0":
             break;
         default:
-            userEntry += String(keyValue);
-            calc_input.value = userEntry;
+            appendSum(keyValue);
             break;
     }
+
 }
 
-function stringLength(keyValue) {
-    if (userinput.length > 0) {
+function checkSum(keyValue){
+    let lastIndex = 0;
+    let lastvalue = '';
+    if(keyValue == ''){
+        return;
+    }
+    if(keyValue == "="){
+        lastIndex = calcentry.length;
+        lastvalue = calcentry[calcentry.length - 1];
+        if(isOperator(lastvalue)){
+            clearSum();
+            return false;
+        }
+        storelastentry = "";
+        calcentry=[];
+        return true;
+    }
+    storelastentry += keyValue
+    if(isOperator(keyValue)){
+        calcentry.push(storelastentry);
+        storelastentry =''
+    }else{
+        calcentry.push(keyValue);
+        storelastentry =''
+    }
+
+}
+
+function stringLength(currentuserEntry) {
+    if (currentuserEntry.length > 0) {
         return true;
     } else {
         return false;
     }
 }
 
-function decCheck(keyValue){
-
+function appendSum(keyValue) {
+    checkSum(keyValue);
+    lastuserEntry += keyValue.toString();
+    calc_input.value = lastuserEntry;
 }
 
-function numbertype(value) {
+function doSum() {
+    let sumValue = "";
+    calcsum.push(lastuserEntry);
+    sumValue = calcsum.join("");
+    addlogentry(sumValue);
+    clearSum();
+    return eval(sumValue);
+}
+
+function clearSum() {
+    lastuserEntry = "";
+    storelastentry = "";
+    calcsum = [];
+    calcentry = [];
+    calc_input.value = 0;
+    console.clear();
+}
+
+function decCheck(keyValue) {
+    console.log("Decimal Check");
+    if (keyValue == "." && lastuserEntry == 0) {
+        lastuserEntry = "0.";
+        calc_input.value = lastuserEntry;
+    } else {
+        appendSum(keyValue)
+    }
+}
+
+function isOperator(keyValue) {
+    if (acceptedops.includes(keyValue)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function cnvt2int(value) {
     if (value.includes(".")) {
         value = eval(value);
         value = parseFloat(value).toFixed(decimalplaces);
@@ -150,11 +219,6 @@ function numbertype(value) {
         value = parseInt(value);
     }
     return value;
-}
-
-function output() {
-    let finalvalue = calcsum.join("");
-    return finalvalue;
 }
 
 function addlogentry(value) {
@@ -199,11 +263,12 @@ function clearmyLogs() {
     localStorage.removeItem("calclog");
 }
 
-function testInput(keyValue,keyDepressed,isKeyboard){
+function testInput(keyValue, keyDepressed, isKeyboard) {
     console.log("Enter Value:" + keyValue);
     console.log("Key Depressed:" + keyDepressed);
     console.log("Keyboard:" + isKeyboard);
-    console.log("Operator:" + isOperator);
+    console.log("Operator:" + isOperator(keyValue));
+    console.log("Last Entry:" + lastuserEntry);
 }
 
 updatemyLogs();
