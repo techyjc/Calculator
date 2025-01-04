@@ -13,15 +13,20 @@
         <div class="calc-wrapper">
           <!-- Calculator Wrapper -->
           <div class="calc-main">
-            <!-- Calculator Main -->
+            <!-- Calculator Main -->            
+            <label for="calc-pwr-switch" class="calc-pwr-wrapper">
+            <input id="calc-pwr-switch" type="checkbox" aria-expanded="false" aria-controls="calc-pwr-switch" class="calc-pwr-switch">
+            <label for="calc-pwr-switch" class="calc-pwr-label"></label>
+            </label>
             <span class="calc-banner">Calculator</span>
+
             <div class="calc-display">
-              <input type="text" class="calc-input" placeholder="0">
+              <input type="text" class="calc-input" aria-expanded="false" placeholder="0">
             </div>
             <div class="calc-buttons">
               <button class="calc-btn calc-func" data-button="c">c</button>
       
-              <button class="calc-btn calc-func" data-button="+/-">+/-</button>
+              <button class="calc-btn calc-func" data-button="">&nbsp</button>
       
               <button class="calc-btn calc-func" data-button="%">%</button>
       

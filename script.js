@@ -3,6 +3,12 @@
 const calc_buttons = document.querySelector(".calc-buttons");
 const calc_input = document.querySelector(".calc-input");
 const calc_clear = document.querySelector(".clear-log");
+const calc_pwr = document.querySelector(".calc-pwr-switch")
+const calc_display = document.querySelector(".calc-input");
+
+let pwrexpanded = calc_pwr.getAttribute("aria-expanded");
+let screxpanded = calc_display.getAttribute("aria-expanded");
+
 let calc_logentries = document.querySelector(".log-entries");
 
 let btnvalue = "";
@@ -14,6 +20,7 @@ let storelastentry = '';
 let result = 0;
 let keyhold = false;
 let lastInput = "";
+let sumsection = '';
 const decimalplaces = 2;
 const acceptedkeys = [
     "0",
@@ -60,6 +67,7 @@ document.addEventListener("keyup", (e) => {
     }
 });
 
+
 document.addEventListener("keypress", (e) => {
     if (acceptedkeys.includes(e.key)) {
         entry(e.key, keyhold, true);
@@ -94,6 +102,7 @@ calc_clear.addEventListener("click", (e) => {
     updatemyLogs();
 });
 
+
 // Event Listeners End
 
 // Functions
@@ -107,74 +116,89 @@ function entry(keyValue, keyDepressed = false, isKeyboard = false) {
     if (keyValue == "enter" || keyValue == "Enter") {
         keyValue = "=";
     }
-    
+
     //testInput(keyValue, keyDepressed, isKeyboard);
 
     switch (keyValue) {
         case "c":
             clearSum()
             break;
-        case "=":
-            if(checkSum(keyValue)){
-                try {
-                    calc_input.value = doSum();
-                  }
-                  catch(err) {
-                    clearSum();
-                  }
-            };
-            break;
-        case ".":
-            decCheck(keyValue);
-            break;
         case "0":
             break;
         default:
-            appendSum(keyValue);
+            pwrexpanded = calc_pwr.getAttribute("aria-expanded");
+
+            if(pwrexpanded=="true"){
+                appendNum(keyValue, keyDepressed, isKeyboard);
+            }
             break;
     }
 
 }
 
+
+
 //Calculator Sum Functions
 
-function checkSum(keyValue){
+function checkSum(keyValue) {
     let lastIndex = 0;
     let lastvalue = '';
-    if(keyValue == ''){
+    if (keyValue == '') {
         return;
     }
-    if(keyValue == "="){
+    if (keyValue == "=") {
         lastIndex = calcentry.length;
         lastvalue = calcentry[calcentry.length - 1];
-        if(isOperator(lastvalue)){
+        if (isOperator(lastvalue)) {
             clearSum();
             return false;
         }
         storelastentry = "";
-        calcentry=[];
+        calcentry = [];
         return true;
     }
     storelastentry += keyValue
-    if(isOperator(keyValue)){
+    if (isOperator(keyValue)) {
         calcentry.push(storelastentry);
-        storelastentry =''
-    }else{
+        storelastentry = '';
+    } else {
         calcentry.push(keyValue);
-        storelastentry =''
+        storelastentry = '';
     }
 
 }
 
-function appendSum(keyValue) {
-    checkSum(keyValue);
+function appendNum(keyValue, keyDepressed, isKeyboard) {
     lastuserEntry += keyValue.toString();
+    if (isOperator(keyValue) == false) {
+        sumsection += keyValue.toString();
+    }
+    if (isOperator(keyValue)) {
+        decCheck(keyValue);
+        if (keyValue == "=") {
+            calcsum.push(sumsection);
+            sumsection = "";
+            if (checkSum(keyValue)) {
+                try {
+                    //console.log(calcsum); // Display captured value
+                    calc_input.value = doSum();
+                    return
+                }
+                catch (err) {
+                    clearSum();
+                }
+            };
+        } else {
+            calcsum.push(sumsection);
+            calcsum.push(keyValue);
+            sumsection = "";
+        }
+    }
     calc_input.value = lastuserEntry;
 }
 
 function doSum() {
     let sumValue = "";
-    calcsum.push(lastuserEntry);
     sumValue = calcsum.join("");
     addlogentry(sumValue);
     clearSum();
@@ -186,20 +210,27 @@ function clearSum() {
     storelastentry = "";
     calcsum = [];
     calcentry = [];
-    calc_input.value = 0;
-    console.clear();
+    storelastentry = "";
 }
 
-//Calculator Sum Functions End
+// Calculator Sum Functions End
 
 // General Functions
+
+function negnums(value) {
+    const sum = value.reverse();
+    sum.forEach((section, index) => {
+        if (isNaN(section)) {
+            console.log("Section:" + index + " " + section);
+        }
+    })
+    sum = '';
+}
 
 function decCheck(keyValue) {
     if (keyValue == "." && lastuserEntry == 0) {
         lastuserEntry = "0.";
         calc_input.value = lastuserEntry;
-    } else {
-        appendSum(keyValue)
     }
 }
 
@@ -286,4 +317,30 @@ function testInput(keyValue, keyDepressed, isKeyboard) {
 
 updatemyLogs();
 
-//Calculatior Log Functions End
+// Calculatior Log Functions End
+
+// Calculator Power
+
+calc_pwr.addEventListener("click", () => {
+
+
+    if (pwrexpanded == "false") {
+        clearSum()
+        calc_input.value = 0;
+        calc_pwr.setAttribute("aria-expanded", "true");
+        calc_display.setAttribute("aria-expanded", "true");
+        pwrexpanded = calc_pwr.getAttribute("aria-expanded");
+        screxpanded = calc_display.getAttribute("aria-expanded");
+        console.log("on " + pwrexpanded);
+    } else {
+        calc_pwr.setAttribute("aria-expanded", "false");
+        calc_display.setAttribute("aria-expanded", "false");
+        pwrexpanded = calc_pwr.getAttribute("aria-expanded");
+        screxpanded = calc_display.getAttribute("aria-expanded");
+        clearSum()
+        calc_input.value = 0;
+        console.log("off " + pwrexpanded);
+    }
+});
+
+// Calculator Power End
