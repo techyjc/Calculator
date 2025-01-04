@@ -109,7 +109,7 @@ input {
   margin-inline: auto 0px;
 }
 
-.calc-pwr-switch:checked~ .calc-pwr-label:before {
+.calc-pwr-switch:checked~.calc-pwr-label:before {
   content: 'ON';
 }
 
@@ -126,9 +126,15 @@ input {
   width: 100%;
 }
 
-.calc-input[aria-expanded="false"] {
+:has(.calc-pwr-switch[aria-expanded="false"]) .calc-input {
   background-color: #666;
   color:#666;
+  transition: background-color 0.5s ease;
+}
+
+:has(.calc-pwr-switch[aria-expanded="true"]) .calc-input {
+  background-color: #F0F4C3;
+  /* color:#666; */
   transition: background-color 0.5s ease;
 }
 

@@ -44,8 +44,11 @@ let enteredSum = '';
 let displaySum = '';
 let resultSum = 0;
 let clearCount = 0;
+let calclog = getmyLog();
 
 calc_input.readOnly = true;
+
+power();
 
 let myargs = { Key: '', keyFunc: '', keyHold: false, isKeyboard: false };
 
@@ -64,9 +67,9 @@ document.addEventListener("keyup", (e) => {
 
 
 document.addEventListener("keypress", (e) => {
-        myargs.isKeyboard = true;
-        myargs.Key = e.key;
-        userEntry(myargs);
+    myargs.isKeyboard = true;
+    myargs.Key = e.key;
+    userEntry(myargs);
 });
 
 calc_buttons.addEventListener("click", (e) => {
@@ -80,11 +83,18 @@ calc_logentries.addEventListener("click", (e) => {
     let logindex = 0;
     if (e.target.classList.contains("log-entry")) {
         logindex = e.target.getAttribute("data-logindex");
-        calc_input.value = cnvt2int((calclog[logindex]));
+        calc_input.value = eval(calclog[logindex]);
     }
 });
 
 calc_clear.addEventListener("click", (e) => {
+    clearmyLogs();
+    calclog = getmyLog();
+    updatemyLogs();
+});
+
+calc_pwr.addEventListener("click", (e) => {
+    power(true);
 });
 
 function isOperator(args) {
@@ -93,46 +103,74 @@ function isOperator(args) {
     }
 }
 
-function userEntry(args) {
-    if(args.Key == "Enter") { args.Key = "="}
-    if(enteredSum.substring(enteredSum.length -1) == "." && args.Key == "."){ return; }
-    if(enteredSum == "0" && args.Key == "0"){ return; }
-    if(enteredSum === "" && args.Key === "="){ return; }
+function power(appStart = false) {
+    if (appStart == false) {
+        calclog = [];
+        updatemyLogs();
+        clear(true);
+        return;
+    }
+    if (pwrexpanded == "false") {
+        calc_pwr.setAttribute("aria-expanded", "true");
+        pwrexpanded = calc_pwr.getAttribute("aria-expanded");
+        calclog = getmyLog();
+        updatemyLogs();
+        clear(true);
+    } else {
+        calc_pwr.setAttribute("aria-expanded", "false");
+        pwrexpanded = calc_pwr.getAttribute("aria-expanded");
+        calclog = [];
+        updatemyLogs();
+        clear(true);
+    }
+}
 
-    if(args.Key == '.' && enteredSum == '' ){
+function userEntry(args) {
+    if (pwrexpanded == "false") { return; }
+    if (args.Key == "Enter") { args.Key = "=" }
+    if (enteredSum.substring(enteredSum.length - 1) == "." && args.Key == ".") { return; }
+    if (enteredSum == "0" && args.Key == "0") { return; }
+    if (enteredSum === "" && args.Key === "=") { return; }
+
+    if (args.Key == '.' && enteredSum == '') {
         enteredSum = '0.';
         displaySum = '0.';
         calcDisplay(displaySum);
         return;
     }
-    
-    if(args.Key == 'c') {
+
+    if (args.Key == 'c') {
         clear();
         clearCount++;
-        if(clearCount == 2) {
+        if (clearCount == 2) {
             clear(true);
             clearCount = 0;
         }
         return;
     }
 
-    clearCount = 0 ; // Reset clearCount;
+    clearCount = 0; // Reset clearCount;
 
     if (isOperator(args)) {
-        if(args.Key == "="){
-            calcSum.push(enteredSum);
-            enteredSum = '';
-            resultSum = calcSum.join('');
+        if (args.Key == "=") {
+            try {
+                calcSum.push(enteredSum);
+                enteredSum = '';
+                resultSum = calcSum.join('');
+                calcDisplay(eval(resultSum));
+                addlogentry(resultSum) // Add the Sum to the calculator log.
 
-            calcDisplay(eval(resultSum));
-            clear();
-            return;
+                clear();
+                return;
+            } catch (err) {
+                return;
+            }
         }
 
         calcSum.push(enteredSum);
         enteredSum = '';
     }
-   
+
     if (acceptedKeys.includes(args.Key)) {
         enteredSum += args.Key;
         displaySum += args.Key; //Used to display user entry.
@@ -141,22 +179,70 @@ function userEntry(args) {
     calcDisplay(displaySum);
 }
 
-function calcDisplay(output){
-    if(output !=""){
+function calcDisplay(output) {
+    if (output != "") {
         calc_display.value = output;
     }
-    
+
 }
 
-function clear(clearDisplay=false) {
+function clear(clearDisplay = false) {
     calcSum = [];
     displaySum = '';
     enteredSum = '';
-    if(clearDisplay){
+    if (clearDisplay) {
         calcDisplay('0');
     }
     console.clear;
 }
+
+//Calculatior Log Functions
+
+function addlogentry(value) {
+    let count = 1;
+    calc_logentries.innerHTML = "";
+    calclog.push(value);
+    calclog.forEach((sum, index) => {
+        let newlogentry = document.createElement("li");
+        newlogentry.classList.add("log-entry");
+        newlogentry.innerHTML = "<strong>" + count + ")</strong> " + sum + "=";
+        newlogentry.setAttribute("data-logindex", index);
+        count++;
+        calc_logentries.appendChild(newlogentry);
+    });
+    savemyLog();
+}
+
+function savemyLog() {
+    const mylogJson = JSON.stringify(calclog);
+    localStorage.setItem("calclog", mylogJson);
+}
+
+function getmyLog() {
+    const logs = localStorage.getItem("calclog") || "[]";
+    return JSON.parse(logs);
+}
+
+function updatemyLogs() {
+    let count = 1;
+    calc_logentries.innerHTML = "";
+    calclog.forEach((sum, index) => {
+        let newlogentry = document.createElement("li");
+        newlogentry.classList.add("log-entry");
+        newlogentry.innerHTML = "<strong>" + count + ")</strong> " + sum + "=";
+        newlogentry.setAttribute("data-logindex", index);
+        count++;
+        calc_logentries.appendChild(newlogentry);
+    });
+}
+
+function clearmyLogs() {
+    localStorage.removeItem("calclog");
+}
+
+updatemyLogs();
+
+// Calculatior Log Functions End
 
 function testOutput(output) {
     console.log(output);
