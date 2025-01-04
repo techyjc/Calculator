@@ -207,7 +207,7 @@ input {
   padding-inline: 0.5rem;
   margin-block-end: 0.2rem;
   height: 600px;
-  overflow-y: scroll;
+  overflow-y: auto;
   position: relative;
   width: 100%;
 }
