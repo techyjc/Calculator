@@ -17,11 +17,9 @@ let calcentry = [];
 let inputcount = 0;
 let lastuserEntry = "";
 let storelastentry = '';
-let result = 0;
 let keyhold = false;
 let lastInput = "";
 let sumsection = '';
-const decimalplaces = 2;
 const acceptedkeys = [
     "0",
     "1",
@@ -49,6 +47,9 @@ const acceptedkeys = [
 const acceptedops = ["+", "-", "*", "/", "%", "=", "Enter"];
 
 calc_input.readOnly = true;
+
+calc_pwr.setAttribute("aria-expanded", "false");
+calc_display.setAttribute("aria-expanded", "false");
 
 calc_input.value = 0;
 let calclog = getmyLog();
@@ -331,7 +332,6 @@ calc_pwr.addEventListener("click", () => {
         calc_display.setAttribute("aria-expanded", "true");
         pwrexpanded = calc_pwr.getAttribute("aria-expanded");
         screxpanded = calc_display.getAttribute("aria-expanded");
-        console.log("on " + pwrexpanded);
     } else {
         calc_pwr.setAttribute("aria-expanded", "false");
         calc_display.setAttribute("aria-expanded", "false");
@@ -339,7 +339,6 @@ calc_pwr.addEventListener("click", () => {
         screxpanded = calc_display.getAttribute("aria-expanded");
         clearSum()
         calc_input.value = 0;
-        console.log("off " + pwrexpanded);
     }
 });
 
