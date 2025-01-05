@@ -1,4 +1,4 @@
-#Calculator ... just because.
+# Calculator ... just because.
 
 I decided to have a go at creating a Calculator App using HTML, CSS & Javascript. The result is here for all to see.
 
