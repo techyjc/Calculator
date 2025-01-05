@@ -113,26 +113,60 @@ input {
   content: 'ON';
 }
 
-.calc-input {
+.calc-display {
   background-color: #F0F4C3;
+  border: 1px solid #000;
   border-radius: 10px;
   box-shadow: inset 0px 0px 3px #000;
-  font-family: Orbitron;
+  color: #333;
+  margin-block-end: 0.2rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.func-display {
+  background-color: inherit;
+  color: inherits;
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0px;
+  padding: 0px 10px;
+  position: absolute;
+  list-style: none;
+  top: 0px;
+  transition: background-color 0.5s ease;
+  width: 100%;
+}
+
+.func-display li {
+  background-color: hsl(65, 49%, 66%);
+  margin-inline: auto 0px;
+  display: block;
+  padding-inline: 10px; 
+  width: fit-content;
+}
+
+.calc-input {
+  background-color: inherit;
+  border: none;
+  color: inherit;
+  display: block;
+  font-family: "Orbitron";
   letter-spacing: .2rem;
   height: 100px;
-  margin-block-end: 0.2rem;
   padding-inline: 0.5rem;
   transition: background-color 0.5s ease;
   width: 100%;
 }
 
-:has(.calc-pwr-switch[aria-expanded="false"]) .calc-input {
+:has(.calc-pwr-switch[aria-expanded="false"]) .calc-display {
   background-color: #666;
   color:#666;
   transition: background-color 0.5s ease;
 }
 
-:has(.calc-pwr-switch[aria-expanded="true"]) .calc-input {
+:has(.calc-pwr-switch[aria-expanded="true"]) .calc-display {
   background-color: #F0F4C3;
   /* color:#666; */
   transition: background-color 0.5s ease;

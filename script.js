@@ -3,6 +3,7 @@ const calc_input = document.querySelector(".calc-input");
 const calc_clear = document.querySelector(".clear-log");
 const calc_pwr = document.querySelector(".calc-pwr-switch")
 const calc_display = document.querySelector(".calc-input");
+const calc_funcdisplay = document.querySelector(".func-display")
 
 let pwrexpanded = calc_pwr.getAttribute("aria-expanded");
 let screxpanded = calc_display.getAttribute("aria-expanded");
@@ -39,6 +40,8 @@ const acceptedKeys = [
 const acceptedOps = ["+", "-", "*", "/", "%", "=", "Enter"];
 const acceptedfunctkeys = ["Alt", "Shift", "Control", "Meta"]
 
+const tooltip_info = [{key: ".", tooltip: "Decimal Point"}, {key: "c", tooltip: "Clear (Press twice to clear display)"},{key: "0", tooltip: "0"},,{key: "1", tooltip: "1"},{key: "2", tooltip: "2"},{key: "3", tooltip: "3"},{key: "4", tooltip: "4"},{key: "5", tooltip: "5"},{key: '6', tooltip: "6"},{key: "7", tooltip: "7"},{key: "8", tooltip: "8"},{key: "9", tooltip: "9"},{key: "%", tooltip: "Modulus"},{key: "/", tooltip: "Division"},{key: "*", tooltip: "Multiplication"}, {key: "-", tooltip: "Subtraction"},{key: "+", tooltip: "Addition"},{key: "=", tooltip: "Sum"}];
+
 let calcSum = [];
 let enteredSum = '';
 let displaySum = '';
@@ -52,10 +55,16 @@ power();
 
 let myargs = { Key: '', keyFunc: '', keyHold: false, isKeyboard: false };
 
+
+
 document.addEventListener("keydown", (e) => {
     if (e.key == "Alt" || e.key == "Shift" || e.key == "Shift") {
         args.keyHold = true;
         args.keyFunc = e.key;
+    }else{
+        myargs.isKeyboard = true;
+        myargs.Key = e.key;
+        userEntry(myargs);
     }
 });
 
@@ -63,13 +72,6 @@ document.addEventListener("keydown", (e) => {
 
 document.addEventListener("keyup", (e) => {
     myargs.keyHold = false;
-});
-
-
-document.addEventListener("keypress", (e) => {
-    myargs.isKeyboard = true;
-    myargs.Key = e.key;
-    userEntry(myargs);
 });
 
 calc_buttons.addEventListener("click", (e) => {
@@ -105,6 +107,7 @@ function isOperator(args) {
 
 function power(appStart = false) {
     if (appStart == false) {
+        calc_clear.disabled = true;
         calclog = [];
         updatemyLogs();
         clear(true);
@@ -113,6 +116,7 @@ function power(appStart = false) {
     if (pwrexpanded == "false") {
         calc_pwr.setAttribute("aria-expanded", "true");
         pwrexpanded = calc_pwr.getAttribute("aria-expanded");
+        calc_clear.disabled = false;
         calclog = getmyLog();
         updatemyLogs();
         clear(true);
@@ -120,6 +124,7 @@ function power(appStart = false) {
         calc_pwr.setAttribute("aria-expanded", "false");
         pwrexpanded = calc_pwr.getAttribute("aria-expanded");
         calclog = [];
+        calc_clear.disabled = true;
         updatemyLogs();
         clear(true);
     }
@@ -166,7 +171,7 @@ function userEntry(args) {
                 return;
             }
         }
-
+        lastFunc(args.Key);
         calcSum.push(enteredSum);
         enteredSum = '';
     }
@@ -186,10 +191,19 @@ function calcDisplay(output) {
 
 }
 
+function lastFunc(value="",cleardisp=false){
+    if(cleardisp) {
+        calc_funcdisplay.innerHTML = "";
+    }else{
+        calc_funcdisplay.innerHTML =`<li><strong>Last Opertation:</strong> ${value}</li class="op-sym">`;
+    }
+}
+
 function clear(clearDisplay = false) {
     calcSum = [];
     displaySum = '';
     enteredSum = '';
+    lastFunc("",true);
     if (clearDisplay) {
         calcDisplay('0');
     }
@@ -205,7 +219,7 @@ function addlogentry(value) {
     calclog.forEach((sum, index) => {
         let newlogentry = document.createElement("li");
         newlogentry.classList.add("log-entry");
-        newlogentry.innerHTML = "<strong>" + count + ")</strong> " + sum + "=";
+        newlogentry.innerHTML = "<strong>" + count + ")</strong> " + sum + "=" + eval(sum);
         newlogentry.setAttribute("data-logindex", index);
         count++;
         calc_logentries.appendChild(newlogentry);
@@ -240,9 +254,25 @@ function clearmyLogs() {
     localStorage.removeItem("calclog");
 }
 
-updatemyLogs();
-
 // Calculatior Log Functions End
+
+updatemyLogs();
+tooltips();
+
+function tooltips(){
+    // tooltip_info
+    const btns = document.querySelectorAll(".calc-btn");
+    btns.forEach((key)=>{
+        let keyData = key.getAttribute('data-button');
+        tooltip_info.forEach((tip)=>{
+            if(String(tip.key) == String(keyData)){
+            
+                key.setAttribute("Title",tip.tooltip);
+               
+            }
+        });
+    });
+}
 
 function testOutput(output) {
     console.log(output);
